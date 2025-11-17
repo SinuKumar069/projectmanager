@@ -1,4 +1,8 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV !== 'production' ? 'http://localhost:3000/api/v1' : '')
+
+if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_API_URL) {
+  throw new Error('NEXT_PUBLIC_API_URL is required in production')
+}
 
 interface ApiResponse<T = any> {
   statusCode: number
@@ -26,7 +30,7 @@ class ApiClient {
     }
 
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`
+      (headers as any)['Authorization'] = `Bearer ${token}`
     }
 
     const config: RequestInit = {
