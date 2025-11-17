@@ -1,0 +1,13 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/dashboard/page": "/dashboard",
+  "/forgot-password/page": "/forgot-password",
+  "/page": "/",
+  "/projects/[id]/page": "/projects/[id]",
+  "/projects/page": "/projects",
+  "/register/page": "/register",
+  "/settings/page": "/settings",
+  "/tasks/page": "/tasks",
+  "/team/page": "/team"
+}
