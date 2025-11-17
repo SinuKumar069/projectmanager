@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { ApiError } from "./utils/api-error.js";
 
 const app = express();
 
@@ -49,6 +50,22 @@ app.use("/api/v1", taskRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to basecampy");
+});
+
+app.use((_req, res) => {
+  res.status(404).json({ statusCode: 404, data: null, message: "Not found", success: false, errors: [] });
+});
+
+app.use((err, _req, res, _next) => {
+  const status = err?.statusCode || 500;
+  const message = err?.message || "Internal Server Error";
+  res.status(status).json({
+    statusCode: status,
+    data: err?.data || null,
+    message,
+    success: false,
+    errors: err?.errors || [],
+  });
 });
 
 export default app;
