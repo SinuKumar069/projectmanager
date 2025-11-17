@@ -44,6 +44,34 @@ class ApiClient {
       const data = await response.json()
 
       if (!response.ok) {
+        if (response.status === 401) {
+          const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('auth_refresh_token') : null
+          const refreshResponse = await fetch(`${this.baseURL}/auth/refresh-token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: refreshToken ? JSON.stringify({ refreshToken }) : undefined,
+          })
+
+          if (refreshResponse.ok) {
+            const refreshData = await refreshResponse.json()
+            const tokens = refreshData.data || {}
+            if (tokens.accessToken) localStorage.setItem('auth_token', tokens.accessToken)
+            if (tokens.refreshToken) localStorage.setItem('auth_refresh_token', tokens.refreshToken)
+
+            const newToken = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+            if (newToken) {
+              (config.headers as any)['Authorization'] = `Bearer ${newToken}`
+            }
+
+            const retryResponse = await fetch(`${this.baseURL}${endpoint}`, config)
+            const retryData = await retryResponse.json()
+            if (!retryResponse.ok) {
+              throw new Error(retryData.message || 'Request failed')
+            }
+            return retryData
+          }
+        }
         throw new Error(data.message || 'Request failed')
       }
 

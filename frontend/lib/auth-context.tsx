@@ -44,8 +44,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const checkAuth = async () => {
       const storedUser = localStorage.getItem('auth_user')
       const token = localStorage.getItem('auth_token')
+      const refresh = localStorage.getItem('auth_refresh_token')
       
-      if (storedUser && token) {
+      if (storedUser && (token || refresh)) {
         try {
           // Verify token is still valid by fetching current user
           const currentUser = await authApi.getCurrentUser()
@@ -70,8 +71,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await authApi.login({ email, password })
       
-      // Store token
+      // Store tokens
       localStorage.setItem('auth_token', response.accessToken)
+      localStorage.setItem('auth_refresh_token', response.refreshToken)
       
       // Map and store user
       const mappedUser = mapApiUserToUser(response.user)
@@ -93,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Auto-login after successful registration
       const loginResponse = await authApi.login({ email, password })
       localStorage.setItem('auth_token', loginResponse.accessToken)
+      localStorage.setItem('auth_refresh_token', loginResponse.refreshToken)
       const loggedInUser = mapApiUserToUser(loginResponse.user)
       setUser(loggedInUser)
       localStorage.setItem('auth_user', JSON.stringify(loggedInUser))
@@ -114,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       localStorage.removeItem('auth_user')
       localStorage.removeItem('auth_token')
+      localStorage.removeItem('auth_refresh_token')
     }
   }
 
